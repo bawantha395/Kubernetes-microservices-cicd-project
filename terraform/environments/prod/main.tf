@@ -59,7 +59,7 @@ module "eks" {
   source              = "../../modules/aws/eks"
   environment         = var.environment
   cluster_name        = "prod-issue-app-cluster"
-  kubernetes_version  = "1.36"
+  kubernetes_version  = "1.30"
   private_subnet_ids  = module.foundation.private_subnet_ids
   vpc_id              = module.foundation.vpc_id
   node_min_size       = 1
