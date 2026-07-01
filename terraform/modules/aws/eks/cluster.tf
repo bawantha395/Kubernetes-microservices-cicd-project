@@ -43,10 +43,21 @@ data "tls_certificate" "eks" {
   url = aws_eks_cluster.main.identity[0].oidc[0].issuer
 }
 
+data "aws_iam_openid_connect_provider" "existing" {
+  count = var.create_oidc_provider ? 0 : 1
+  url   = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
 resource "aws_iam_openid_connect_provider" "main" {
+  count           = var.create_oidc_provider ? 1 : 0
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
   url             = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
+locals {
+  oidc_provider_arn = var.create_oidc_provider ? aws_iam_openid_connect_provider.main[0].arn : data.aws_iam_openid_connect_provider.existing[0].arn
+  oidc_issuer       = replace(aws_eks_cluster.main.identity[0].oidc[0].issuer, "https://", "")
 }
 
 # 2. Create the IAM role that trusts our fresh EKS cluster context dynamically
@@ -59,13 +70,13 @@ resource "aws_iam_role" "secrets_role" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = aws_iam_openid_connect_provider.main.arn
+          Federated = local.oidc_provider_arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
-            "${replace(aws_iam_openid_connect_provider.main.url, "https://", "")}:aud" = "sts.amazonaws.com",
-            "${replace(aws_iam_openid_connect_provider.main.url, "https://", "")}:sub" = "system:serviceaccount:issue-app:issue-app-sa"
+            "${local.oidc_issuer}:aud" = "sts.amazonaws.com",
+            "${local.oidc_issuer}:sub" = "system:serviceaccount:issue-app:issue-app-sa"
           }
         }
       }

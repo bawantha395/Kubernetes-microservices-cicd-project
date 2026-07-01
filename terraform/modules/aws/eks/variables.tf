@@ -48,3 +48,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "create_oidc_provider" {
+  description = "Whether to create a new IAM OIDC provider for the EKS cluster"
+  type        = bool
+  default     = true
+}

@@ -27,6 +27,11 @@ provider "aws" {
   region = "us-east-1"
 }
 
+resource "random_password" "db_password" {
+  length  = 20
+  special = false
+}
+
 # Root-level instantiation of modules using structural code mapping
 module "foundation" {
   source               = "../../modules/aws/foundation"
@@ -50,7 +55,7 @@ module "database" {
   private_subnet_ids            = module.foundation.private_subnet_ids
   vpc_id                        = module.foundation.vpc_id
   db_username                   = var.db_username
-  db_password                   = var.db_password
+  db_password                   = random_password.db_password.result
   # ✅ FIXED: Reverted to the valid exported output from your EKS module
   eks_cluster_security_group_id = module.eks.cluster_security_group_id
 }
@@ -59,14 +64,14 @@ module "eks" {
   source              = "../../modules/aws/eks"
   environment         = var.environment
   cluster_name        = "prod-issue-app-cluster"
-  kubernetes_version  = "1.30"
+  kubernetes_version  = "1.36"
   private_subnet_ids  = module.foundation.private_subnet_ids
   vpc_id              = module.foundation.vpc_id
   node_min_size       = 1
   node_desired_size   = 2
   node_max_size       = 3
-  # 🚀 KEPT: Upgraded to t3.medium to double RAM and resolve IP allocation limits
-  node_instance_types = ["t3.medium"]
+  node_instance_types = ["t3.micro"]
+  create_oidc_provider = false
 }
 
 module "dns_cdn" {
