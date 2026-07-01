@@ -35,32 +35,28 @@ resource "aws_eks_cluster" "main" {
 }
 
 # ==============================================================================
-# AUTOMATED OIDC & IRSA TRUST CONTROLLER (ADDED)
+# AUTOMATED OIDC & IRSA TRUST CONTROLLER (FIXED)
 # ==============================================================================
 
-# 1. Automatically register the cluster's unique identity signature with AWS IAM
+# 1. Automatically read the cluster's unique identity signature
 data "tls_certificate" "eks" {
   url = aws_eks_cluster.main.identity[0].oidc[0].issuer
 }
 
-data "aws_iam_openid_connect_provider" "existing" {
-  count = var.create_oidc_provider ? 0 : 1
-  url   = aws_eks_cluster.main.identity[0].oidc[0].issuer
-}
-
+# 2. Always create the IAM OIDC Provider link directly (Removed failing conditional lookup)
 resource "aws_iam_openid_connect_provider" "main" {
-  count           = var.create_oidc_provider ? 1 : 0
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
   url             = aws_eks_cluster.main.identity[0].oidc[0].issuer
 }
 
+# 3. Clean local definitions without tracking conditional variations
 locals {
-  oidc_provider_arn = var.create_oidc_provider ? aws_iam_openid_connect_provider.main[0].arn : data.aws_iam_openid_connect_provider.existing[0].arn
+  oidc_provider_arn = aws_iam_openid_connect_provider.main.arn
   oidc_issuer       = replace(aws_eks_cluster.main.identity[0].oidc[0].issuer, "https://", "")
 }
 
-# 2. Create the IAM role that trusts our fresh EKS cluster context dynamically
+# 4. Create the IAM role that trusts our fresh EKS cluster context dynamically
 resource "aws_iam_role" "secrets_role" {
   name = "${var.environment}-issue-app-secrets-role"
 
@@ -84,7 +80,7 @@ resource "aws_iam_role" "secrets_role" {
   })
 }
 
-# 3. Automatically grant this target role Secrets Manager access privileges
+# 5. Automatically grant this target role Secrets Manager access privileges
 resource "aws_iam_role_policy_attachment" "secrets_policy" {
   role       = aws_iam_role.secrets_role.name
   policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
