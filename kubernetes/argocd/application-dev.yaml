@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/bawantha395/sample_game_backend.git'
+    repoURL: 'https://github.com/bawantha395/Kubernetes-microservices-cicd-project.git'
     targetRevision: dev
     path: kubernetes/environments/dev
   destination:

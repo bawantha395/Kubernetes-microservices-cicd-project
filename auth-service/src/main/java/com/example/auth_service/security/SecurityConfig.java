@@ -32,6 +32,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 // Public auth endpoints
                 .requestMatchers("/auth/register", "/auth/login").permitAll()
+            .requestMatchers("/actuator/**").permitAll()
                 // User management - ADMIN only
                 .requestMatchers(HttpMethod.GET, "/auth/users/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/auth/users/**").hasRole("ADMIN")

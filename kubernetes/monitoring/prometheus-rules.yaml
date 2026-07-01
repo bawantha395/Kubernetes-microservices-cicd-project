@@ -1,0 +1,33 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: issue-app-alerts
+  namespace: issue-app
+spec:
+  groups:
+    - name: issue-app.rules
+      rules:
+        - alert: ApiGatewayDown
+          expr: up{service="api-gateway"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: api-gateway is down
+            description: Prometheus cannot scrape api-gateway for more than 2 minutes.
+        - alert: AuthServiceDown
+          expr: up{service="auth-service"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: auth-service is down
+            description: Prometheus cannot scrape auth-service for more than 2 minutes.
+        - alert: IssueServiceDown
+          expr: up{service="issue-service"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: issue-service is down
+            description: Prometheus cannot scrape issue-service for more than 2 minutes.

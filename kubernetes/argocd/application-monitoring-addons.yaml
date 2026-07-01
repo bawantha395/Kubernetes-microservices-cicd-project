@@ -1,16 +1,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: issue-app-prod
+  name: monitoring-addons
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/bawantha395/Kubernetes-microservices-cicd-project.git'
+    repoURL: https://github.com/bawantha395/Kubernetes-microservices-cicd-project.git
     targetRevision: prod
-    path: kubernetes/environments/prod
+    path: kubernetes/monitoring
   destination:
-    server: 'https://kubernetes.default.svc'
+    server: https://kubernetes.default.svc
     namespace: issue-app
   syncPolicy:
     automated:
@@ -18,3 +20,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
