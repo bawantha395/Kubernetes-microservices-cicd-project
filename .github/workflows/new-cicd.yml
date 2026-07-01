@@ -205,6 +205,15 @@
             echo "using_bucket=game-app-tf-state-${ACCOUNT_ID}" >> $GITHUB_OUTPUT
             echo "using_table=game-app-tf-locks" >> $GITHUB_OUTPUT
 
+        - name: 3.1 Inspect Existing Terraform Locks
+          run: |
+            echo "Checking active lock records in DynamoDB table: ${{ steps.bootstrap.outputs.using_table }}"
+            aws dynamodb scan \
+              --table-name "${{ steps.bootstrap.outputs.using_table }}" \
+              --projection-expression "LockID, #i" \
+              --expression-attribute-names '{"#i":"Info"}' \
+              --region us-east-1 || true
+
         - name: 4. Initialize Terraform Engine
           uses: hashicorp/setup-terraform@v3
           with:
