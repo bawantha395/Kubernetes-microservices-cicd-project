@@ -72,10 +72,12 @@ module "eks" {
   kubernetes_version   = "1.36"
   private_subnet_ids   = module.foundation.private_subnet_ids
   vpc_id               = module.foundation.vpc_id
-  node_min_size        = 1
-  node_desired_size    = 2
-  node_max_size        = 3
-  node_instance_types  = ["t3.medium"] # Enforces scale capacity to clear scheduling blocks
+  
+  # 🚀 FREE TIER FIX: Scale out the count to bypass the 4-pods-per-node limit on t3.micro
+  node_min_size        = 3
+  node_desired_size    = 5  # Spins up 5 instances to provide 20 total pod slots
+  node_max_size        = 6
+  node_instance_types  = ["t3.micro"] # Complies with your account's Free Tier policy
   create_oidc_provider = false
 }
 
