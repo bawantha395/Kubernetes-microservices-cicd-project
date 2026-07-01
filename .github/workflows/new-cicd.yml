@@ -27,6 +27,10 @@
     TARGET_ENV: ${{ github.event.inputs.environment || 'prod' }}
     TARGET_ACTION: ${{ github.event.inputs.action || 'deploy' }}
 
+  concurrency:
+    group: terraform-${{ github.workflow }}-${{ github.event.inputs.environment || 'prod' }}
+    cancel-in-progress: false
+
   jobs:
     # ==========================================
     # JOB 1: BUILD & TEST (Validates Infra & Code Plans)
@@ -77,7 +81,7 @@
               -backend-config="key=${{ env.TARGET_ENV }}/terraform.tfstate"
             
             echo "=== RUNNING INFRASTRUCTURE AND COMPILATION VALIDATION ==="
-            terraform plan
+            terraform plan -lock-timeout=10m
           env:
             TF_VAR_db_username: ${{ env.TARGET_ENV == 'prod' && secrets.DB_USERNAME_PROD || secrets.DB_USERNAME_DEV }}
             TF_VAR_db_password: ${{ env.TARGET_ENV == 'prod' && secrets.DB_PASSWORD_PROD || secrets.DB_PASSWORD_DEV }}
@@ -126,7 +130,7 @@
               -backend-config="dynamodb_table=${{ steps.bootstrap.outputs.using_table }}" \
               -backend-config="key=${{ env.TARGET_ENV }}/terraform.tfstate"
             
-            terraform apply -auto-approve
+            terraform apply -lock-timeout=10m -auto-approve
           env:
             TF_VAR_db_username: ${{ env.TARGET_ENV == 'prod' && secrets.DB_USERNAME_PROD || secrets.DB_USERNAME_DEV }}
             TF_VAR_db_password: ${{ env.TARGET_ENV == 'prod' && secrets.DB_PASSWORD_PROD || secrets.DB_PASSWORD_DEV }}
@@ -215,7 +219,7 @@
               -backend-config="key=${{ env.TARGET_ENV }}/terraform.tfstate"
             
             echo "🗑️ Launching complete ecosystem destruction..."
-            terraform destroy -auto-approve
+            terraform destroy -lock-timeout=10m -auto-approve
           env:
             TF_VAR_db_username: ${{ env.TARGET_ENV == 'prod' && secrets.DB_USERNAME_PROD || secrets.DB_USERNAME_DEV }}
             TF_VAR_db_password: ${{ env.TARGET_ENV == 'prod' && secrets.DB_PASSWORD_PROD || secrets.DB_PASSWORD_DEV }}

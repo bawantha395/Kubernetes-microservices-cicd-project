@@ -59,7 +59,7 @@ module "eks" {
   source              = "../../modules/aws/eks"
   environment         = var.environment
   cluster_name        = "prod-issue-app-cluster"
-  kubernetes_version  = "1.30"
+  kubernetes_version  = "1.36"
   private_subnet_ids  = module.foundation.private_subnet_ids
   vpc_id              = module.foundation.vpc_id
   node_min_size       = 1
@@ -101,5 +101,42 @@ resource "aws_secretsmanager_secret_version" "jwt_value" {
   secret_id     = aws_secretsmanager_secret.jwt.id
   secret_string = jsonencode({
     secret = random_password.jwt_secret.result
+  })
+}
+
+# ============================================================================== 
+# AUTH SERVICE SUPPORTING SECRETS
+# ============================================================================== 
+
+resource "random_password" "admin_password" {
+  length  = 20
+  special = false
+}
+
+resource "aws_secretsmanager_secret" "auth_admin" {
+  name                    = "${var.environment}/issue/admin"
+  description             = "Admin bootstrap credentials for auth-service"
+  recovery_window_in_days = 0
+}
+
+resource "aws_secretsmanager_secret_version" "auth_admin_value" {
+  secret_id     = aws_secretsmanager_secret.auth_admin.id
+  secret_string = jsonencode({
+    email    = "admin@tcmslk.me"
+    password = random_password.admin_password.result
+  })
+}
+
+resource "aws_secretsmanager_secret" "ses" {
+  name                    = "${var.environment}/issue/ses"
+  description             = "SES SMTP credentials for auth-service"
+  recovery_window_in_days = 0
+}
+
+resource "aws_secretsmanager_secret_version" "ses_value" {
+  secret_id     = aws_secretsmanager_secret.ses.id
+  secret_string = jsonencode({
+    username = "REPLACE_WITH_SES_SMTP_USERNAME"
+    password = "REPLACE_WITH_SES_SMTP_PASSWORD"
   })
 }

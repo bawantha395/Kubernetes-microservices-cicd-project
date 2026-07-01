@@ -46,6 +46,16 @@ spec:
                 secretKeyRef:
                   name: auth-service-secrets
                   key: JWT_SECRET
+            - name: APP_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: auth-service-secrets
+                  key: APP_ADMIN_EMAIL
+            - name: APP_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: auth-service-secrets
+                  key: APP_ADMIN_PASSWORD
             - name: SES_USERNAME
               valueFrom:
                 secretKeyRef:

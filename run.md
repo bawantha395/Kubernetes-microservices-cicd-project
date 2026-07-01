@@ -256,6 +256,21 @@ kubectl -n issue-app get externalsecret
 kubectl -n issue-app get secret api-gateway-secrets auth-service-secrets issue-service-secrets
 ```
 
+Verify expected AWS Secrets Manager keys exist for prod:
+1. prod/issue/db (username, password)
+2. prod/game/jwt (secret)
+3. prod/issue/admin (email, password)
+4. prod/issue/ses (username, password)
+
+Update SES placeholders after first Terraform apply:
+
+```bash
+aws secretsmanager put-secret-value \
+  --region us-east-1 \
+  --secret-id prod/issue/ses \
+  --secret-string '{"username":"<SES_SMTP_USERNAME>","password":"<SES_SMTP_PASSWORD>"}'
+```
+
 ## 12. Day-2 Operations
 
 Sync applications manually when needed:
