@@ -7,13 +7,13 @@ resources:
 images:
 - name: api-gateway
   newName: 530352103493.dkr.ecr.us-east-1.amazonaws.com/prod-api-gateway
-  newTag: 7196c61850272a21c1644a8467dd2c94ff333dd4
+  newTag: df1a111081e6f45048656c6c18e3216520009574
 - name: auth-service
   newName: 530352103493.dkr.ecr.us-east-1.amazonaws.com/prod-auth-service
-  newTag: 7196c61850272a21c1644a8467dd2c94ff333dd4
+  newTag: df1a111081e6f45048656c6c18e3216520009574
 - name: frontend-service
   newName: 530352103493.dkr.ecr.us-east-1.amazonaws.com/prod-frontend-service
-  newTag: 7196c61850272a21c1644a8467dd2c94ff333dd4
+  newTag: df1a111081e6f45048656c6c18e3216520009574
 - name: issue-service
   newName: 530352103493.dkr.ecr.us-east-1.amazonaws.com/prod-issue-service
-  newTag: 7196c61850272a21c1644a8467dd2c94ff333dd4
+  newTag: df1a111081e6f45048656c6c18e3216520009574
