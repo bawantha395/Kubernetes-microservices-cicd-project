@@ -18,6 +18,9 @@ spec:
           image: frontend-service:latest
           ports:
             - containerPort: 3000
+          # 🟢 UPGRADE: Forces react-scripts to stay alive inside a headless cloud container
+          stdin: true
+          tty: true
           resources:
             requests:
               cpu: "50m"       # Down from 250m
