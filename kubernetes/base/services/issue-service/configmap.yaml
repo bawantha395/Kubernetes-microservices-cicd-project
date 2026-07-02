@@ -4,4 +4,4 @@ metadata:
   name: issue-service-config
   namespace: issue-app
 data:
-  SPRING_DATASOURCE_URL: "jdbc:mysql://prod-game-db.xxxxxxxxxxxx.us-east-1.rds.amazonaws.com:3306/game_db"
+  SPRING_DATASOURCE_URL: jdbc:mysql://prod-issue-db.c8tsk48m85k3.us-east-1.rds.amazonaws.com:3306/game_db
