@@ -50,6 +50,14 @@ spec:
             - name: storage
               mountPath: /data
       volumes:
+        - name: aws-iam-token
+          projected:
+            defaultMode: 420
+            sources:
+              - id: sts
+                serviceAccountToken:
+                  audience: sts.amazonaws.com
+                  expirationSeconds: 86400
+                  path: token
         - name: storage
-          persistentVolumeClaim:
-            claimName: issue-storage-pvc
+          emptyDir: {}  # 👈 Change this line from persistentVolumeClaim to emptyDir

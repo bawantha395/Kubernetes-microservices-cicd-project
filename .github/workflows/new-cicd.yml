@@ -171,9 +171,16 @@ jobs:
 
       - name: 11. Update Kubernetes Resource Blueprints
         run: |
-          REGISTRY_URL=${{ steps.cloud-data.outputs.ecr_url }}
+          ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+          BASE_REGISTRY="${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com"
+          
           cd kubernetes/environments/${{ env.TARGET_ENV }}
-          kustomize edit set image api-gateway=$REGISTRY_URL:${{ env.FINAL_TAG }}
+          
+          echo "=== CONFIGURING GITOPS IMAGE BLUEPRINTS ==="
+          kustomize edit set image api-gateway=$BASE_REGISTRY/prod-api-gateway:${{ env.FINAL_TAG }}
+          kustomize edit set image auth-service=$BASE_REGISTRY/prod-auth-service:${{ env.FINAL_TAG }}
+          kustomize edit set image frontend-service=$BASE_REGISTRY/prod-frontend-service:${{ env.FINAL_TAG }}
+          kustomize edit set image issue-service=$BASE_REGISTRY/prod-issue-service:${{ env.FINAL_TAG }}
 
       - name: 12. Commit and Push Manifest Changes to Git
         run: |
