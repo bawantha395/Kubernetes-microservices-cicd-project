@@ -73,11 +73,11 @@ module "eks" {
   private_subnet_ids   = module.foundation.private_subnet_ids
   vpc_id               = module.foundation.vpc_id
   
-  # 🚀 FREE TIER FIX: Scale out the count to bypass the 4-pods-per-node limit on t3.micro
-  node_min_size        = 3
-  node_desired_size    = 5  # Spins up 5 instances to provide 20 total pod slots
-  node_max_size        = 6
-  node_instance_types  = ["t3.micro"] # Complies with your account's Free Tier policy
+  # 🚀 THE FIX: Expand to 8 desired nodes to create 32 total pod allocation slots
+  node_min_size        = 4
+  node_desired_size    = 8  
+  node_max_size        = 10
+  node_instance_types  = ["t3.micro"] # Stays 100% within your Free Tier account policy
   create_oidc_provider = false
 }
 
