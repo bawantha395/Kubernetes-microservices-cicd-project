@@ -73,11 +73,11 @@ module "eks" {
   private_subnet_ids   = module.foundation.private_subnet_ids
   vpc_id               = module.foundation.vpc_id
   
-  # 🚀 THE FIX: Expand to 8 desired nodes to create 32 total pod allocation slots
-  node_min_size        = 4
-  node_desired_size    = 8  
-  node_max_size        = 10
-  node_instance_types  = ["t3.micro"] # Stays 100% within your Free Tier account policy
+  # 🚀 COST & RESOURCE OPTIMIZATION: Move to stable t3.small instances
+  node_min_size        = 2            # Drops you down to a highly efficient pair
+  node_desired_size    = 2  
+  node_max_size        = 3            # Allows slight bursting if needed
+  node_instance_types  = ["t3.small"] # 11 pods capacity natively & 2GB RAM per node
   create_oidc_provider = false
 }
 
