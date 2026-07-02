@@ -160,7 +160,7 @@ jobs:
           IMAGE_TAG_FULL=${GITHUB_SHA}
           REGISTRY_URL=${{ steps.cloud-data.outputs.ecr_url }}
           
-          # 🚀 FIXED: Tag and push both short and full SHA variants
+          # 🚀 FIXED:s Tag and push both short and full SHA variants
           docker build -t $REGISTRY_URL:$IMAGE_TAG_SHORT -t $REGISTRY_URL:$IMAGE_TAG_FULL .
           docker push $REGISTRY_URL:$IMAGE_TAG_SHORT
           docker push $REGISTRY_URL:$IMAGE_TAG_FULL
