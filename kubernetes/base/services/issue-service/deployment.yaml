@@ -20,12 +20,15 @@ spec:
             - containerPort: 8098
           resources:
             requests:
-              cpu: "50m"       # Down from 250m
-              memory: "128Mi"  # Down from 512Mi
+              cpu: "100m"       
+              memory: "256Mi"  
             limits:
-              cpu: "200m"
-              memory: "256Mi"  # Down from 1Gi
+              cpu: "500m"
+              memory: "1Gi"    # 🟢 UPGRADE: Increased to 1Gi to match auth-service safety profiles
           env:
+            # 🟢 UPGRADE: Binds the JVM garbage collector and max heap size cleanly within container limits
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:+UseSerialGC -Xss256k -Xms256m -Xmx512m"
             - name: SPRING_DATASOURCE_URL
               valueFrom:
                 configMapKeyRef:
@@ -60,4 +63,4 @@ spec:
                   expirationSeconds: 86400
                   path: token
         - name: storage
-          emptyDir: {}  # 👈 Change this line from persistentVolumeClaim to emptyDir
+          emptyDir: {}  # 🟢 FIX: Successfully dropped the EBS volume requirement to run in node RAM

@@ -23,11 +23,11 @@ spec:
           tty: true
           resources:
             requests:
-              cpu: "50m"       # Down from 250m
-              memory: "128Mi"  # Down from 512Mi
+              cpu: "100m"       # Down from 250m
+              memory: "256Mi"  # Down from 512Mi
             limits:
-              cpu: "200m"
-              memory: "512Mi"  # Down from 1Gi
+              cpu: "500m"
+              memory: "1Gi"  # Down from 1Gi
           env:
             - name: REACT_APP_API_BASE_URL
               value: "/api"
