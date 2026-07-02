@@ -5,14 +5,34 @@ metadata:
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    # 🔓 UPGRADE 1: Open both plain text HTTP (80) and secure HTTPS (443) listeners
+    # 🔓 Open both plain text HTTP (80) and secure HTTPS (443) listeners
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    # 🔄 UPGRADE 2: Automatically redirect all incoming Port 80 traffic to secure Port 443
+    # 🔄 Automatically redirect all incoming Port 80 traffic to secure Port 443
     alb.ingress.kubernetes.io/ssl-redirect: '443'
 spec:
   ingressClassName: alb
   rules:
+    # 🌐 RULE 1: Direct traffic matching the root domain
     - host: tcmslk.me
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 80
+                  
+    # 🌐 RULE 2: Direct traffic matching the custom subdomain prefix
+    - host: lb.tcmslk.me
       http:
         paths:
           - path: /api
