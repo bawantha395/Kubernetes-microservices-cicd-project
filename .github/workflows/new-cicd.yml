@@ -154,23 +154,28 @@ jobs:
 
       - name: 9. Build and Publish Application Image
         run: |
-          # 🚀 FIXED: Change context path into the target directory first
           cd api-gateway 
           
-          IMAGE_TAG=${GITHUB_SHA::7}
+          IMAGE_TAG_SHORT=${GITHUB_SHA::7}
+          IMAGE_TAG_FULL=${GITHUB_SHA}
           REGISTRY_URL=${{ steps.cloud-data.outputs.ecr_url }}
-          docker build -t $REGISTRY_URL:$IMAGE_TAG .
-          docker push $REGISTRY_URL:$IMAGE_TAG
-          echo "FINAL_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          
+          # 🚀 FIXED: Tag and push both short and full SHA variants
+          docker build -t $REGISTRY_URL:$IMAGE_TAG_SHORT -t $REGISTRY_URL:$IMAGE_TAG_FULL .
+          docker push $REGISTRY_URL:$IMAGE_TAG_SHORT
+          docker push $REGISTRY_URL:$IMAGE_TAG_FULL
+          
+          # Set FINAL_TAG to full SHA to satisfy your deployment manifest specifications
+          echo "FINAL_TAG=$IMAGE_TAG_FULL" >> $GITHUB_ENV
 
       - name: 10. Set Up Kustomize Controller
         uses: imranismail/setup-kustomize@v2
 
       - name: 11. Update Kubernetes Resource Blueprints
-        run: |
-          REGISTRY_URL=${{ steps.cloud-data.outputs.ecr_url }}
-          cd kubernetes/environments/${{ env.TARGET_ENV }}
-          kustomize edit set image prod-api-gateway=$REGISTRY_URL:${{ env.FINAL_TAG }}
+          run: |
+            REGISTRY_URL=${{ steps.cloud-data.outputs.ecr_url }}
+            cd kubernetes/environments/${{ env.TARGET_ENV }}
+            kustomize edit set image api-gateway=$REGISTRY_URL:${{ env.FINAL_TAG }}
 
       - name: 12. Commit and Push Manifest Changes to Git
         run: |

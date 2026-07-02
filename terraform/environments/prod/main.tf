@@ -85,7 +85,7 @@ module "dns_cdn" {
   source      = "../../modules/aws/dns_cdn"
   environment = var.environment
   domain_name = "tcmslk.me"
-  alb_dns_name = "k8s-issueapp-microser-xxxxxxxxxx.us-east-1.elb.amazonaws.com"
+  alb_dns_name = "k8s-issueapp-microser-7dd78c7c61-109561598.us-east-1.elb.amazonaws.com"
 
   providers = {
     aws.us_east_1 = aws.us_east_1

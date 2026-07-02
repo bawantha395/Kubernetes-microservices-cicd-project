@@ -7,7 +7,7 @@ resources:
 images:
 - name: api-gateway
   newName: 530352103493.dkr.ecr.us-east-1.amazonaws.com/prod-api-gateway
-  newTag: 684192a9876986460a7216b13c880d0f934baf72
+  newTag: LATEST_TAG_WILL_AUTO_INSERT
 - name: auth-service
   newName: 530352103493.dkr.ecr.us-east-1.amazonaws.com/prod-auth-service
   newTag: 684192a9876986460a7216b13c880d0f934baf72
@@ -17,6 +17,3 @@ images:
 - name: issue-service
   newName: 530352103493.dkr.ecr.us-east-1.amazonaws.com/prod-issue-service
   newTag: 684192a9876986460a7216b13c880d0f934baf72
-- name: prod-api-gateway
-  newName: 530352103493.dkr.ecr.us-east-1.amazonaws.com/prod-api-gateway
-  newTag: 170c93f

@@ -20,11 +20,11 @@ spec:
             - containerPort: 8098
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
+              cpu: "50m"       # Down from 250m
+              memory: "128Mi"  # Down from 512Mi
             limits:
-              cpu: 500m
-              memory: 1Gi
+              cpu: "200m"
+              memory: "256Mi"  # Down from 1Gi
           env:
             - name: SPRING_DATASOURCE_URL
               valueFrom:
