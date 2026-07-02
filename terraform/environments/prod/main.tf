@@ -73,11 +73,11 @@ module "eks" {
   private_subnet_ids   = module.foundation.private_subnet_ids
   vpc_id               = module.foundation.vpc_id
   
-  # 🚀 COST & RESOURCE OPTIMIZATION: Move to stable t3.small instances
-  node_min_size        = 2            # Drops you down to a highly efficient pair
+  # 🚀 FREE TIER UPGRADE: Moving to next-gen flex instances for 8GB RAM per node
+  node_min_size        = 2            
   node_desired_size    = 2  
-  node_max_size        = 3            # Allows slight bursting if needed
-  node_instance_types  = ["t3.small"] # 11 pods capacity natively & 2GB RAM per node
+  node_max_size        = 3            
+  node_instance_types  = ["m7i-flex.large"] # 👈 Upgraded from t3.small
   create_oidc_provider = false
 }
 
@@ -154,14 +154,11 @@ resource "aws_secretsmanager_secret_version" "ses_value" {
 # ROOT OUTPUTS FOR GITHUB ACTIONS RUNNER ACCESS
 # ==============================================================================
 
-# 1. Exposes the master map collection to the state ecosystem
 output "repository_urls" {
   description = "Map of ECR repository names to their respective registry URLs"
   value       = module.registry.repository_urls
 }
 
-# 2. Flattened primitive string fallbacks to prevent pipeline -raw parsing crashes.
-# Uses try() lookups to handle both prefix variations ('auth-service' vs 'prod-auth-service') seamlessly.
 output "auth_service_ecr_url" {
   description = "Direct URL for the authentication service ECR repository"
   value       = try(module.registry.repository_urls["auth-service"], module.registry.repository_urls["prod-auth-service"], "")
