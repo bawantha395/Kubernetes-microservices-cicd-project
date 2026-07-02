@@ -7,7 +7,7 @@ resources:
 images:
 - name: api-gateway
   newName: 530352103493.dkr.ecr.us-east-1.amazonaws.com/prod-api-gateway
-  newTag: 3693535a72d8c02362016ac8e375d4f2c5a6d504
+  newTag: 9f3c273df22956aaa444b7ef4438e93d8bb3ad6b
 - name: auth-service
   newName: 530352103493.dkr.ecr.us-east-1.amazonaws.com/prod-auth-service
   newTag: 684192a9876986460a7216b13c880d0f934baf72
