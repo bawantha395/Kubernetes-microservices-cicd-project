@@ -152,18 +152,41 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: 9. Build and Publish Application Image
+      - name: 9. Build and Publish All Application Images
         run: |
-          cd api-gateway 
-          
           IMAGE_TAG_SHORT=${GITHUB_SHA::7}
           IMAGE_TAG_FULL=${GITHUB_SHA}
-          REGISTRY_URL=${{ steps.cloud-data.outputs.ecr_url }}
-          
-          docker build -t $REGISTRY_URL:$IMAGE_TAG_SHORT -t $REGISTRY_URL:$IMAGE_TAG_FULL .
-          docker push $REGISTRY_URL:$IMAGE_TAG_SHORT
-          docker push $REGISTRY_URL:$IMAGE_TAG_FULL
-          
+          ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+          BASE_REGISTRY="${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com"
+
+          echo "=== BUILDING & PUSHING API GATEWAY ==="
+          cd api-gateway
+          docker build -t $BASE_REGISTRY/prod-api-gateway:$IMAGE_TAG_SHORT -t $BASE_REGISTRY/prod-api-gateway:$IMAGE_TAG_FULL .
+          docker push $BASE_REGISTRY/prod-api-gateway:$IMAGE_TAG_SHORT
+          docker push $BASE_REGISTRY/prod-api-gateway:$IMAGE_TAG_FULL
+          cd ..
+
+          echo "=== BUILDING & PUSHING AUTH SERVICE ==="
+          cd auth-service
+          docker build -t $BASE_REGISTRY/prod-auth-service:$IMAGE_TAG_SHORT -t $BASE_REGISTRY/prod-auth-service:$IMAGE_TAG_FULL .
+          docker push $BASE_REGISTRY/prod-auth-service:$IMAGE_TAG_SHORT
+          docker push $BASE_REGISTRY/prod-auth-service:$IMAGE_TAG_FULL
+          cd ..
+
+          echo "=== BUILDING & PUSHING FRONTEND SERVICE ==="
+          cd frontend-service
+          docker build -t $BASE_REGISTRY/prod-frontend-service:$IMAGE_TAG_SHORT -t $BASE_REGISTRY/prod-frontend-service:$IMAGE_TAG_FULL .
+          docker push $BASE_REGISTRY/prod-frontend-service:$IMAGE_TAG_SHORT
+          docker push $BASE_REGISTRY/prod-frontend-service:$IMAGE_TAG_FULL
+          cd ..
+
+          echo "=== BUILDING & PUSHING ISSUE SERVICE ==="
+          cd issue-service
+          docker build -t $BASE_REGISTRY/prod-issue-service:$IMAGE_TAG_SHORT -t $BASE_REGISTRY/prod-issue-service:$IMAGE_TAG_FULL .
+          docker push $BASE_REGISTRY/prod-issue-service:$IMAGE_TAG_SHORT
+          docker push $BASE_REGISTRY/prod-issue-service:$IMAGE_TAG_FULL
+          cd ..
+
           echo "FINAL_TAG=$IMAGE_TAG_FULL" >> $GITHUB_ENV
 
       - name: 10. Set Up Kustomize Controller
