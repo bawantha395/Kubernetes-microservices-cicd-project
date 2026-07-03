@@ -12,22 +12,24 @@ spec:
       labels:
         app: frontend-service
     spec:
-      serviceAccountName: issue-app-sa
+      serviceAccountName: issue-app-sa # 🟢 Preserved your custom service account mapping
       containers:
         - name: frontend-service
           image: frontend-service:latest
           ports:
             - containerPort: 3000
-          # 🟢 UPGRADE: Forces react-scripts to stay alive inside a headless cloud container
           stdin: true
           tty: true
           resources:
             requests:
-              cpu: "100m"       # Down from 250m
-              memory: "256Mi"  # Down from 512Mi
+              cpu: "100m"       
+              memory: "256Mi"  
             limits:
               cpu: "500m"
-              memory: "1Gi"  # Down from 1Gi
+              memory: "1Gi"  
           env:
+            # 🟢 UPGRADE: Explicitly maps the Node.js V8 heap ceiling to prevent OOMKilled evictions
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=768"
             - name: REACT_APP_API_BASE_URL
               value: "/api"
