@@ -30,12 +30,13 @@ public class SecurityConfig {
         http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.authorizeHttpRequests(auth -> auth
-                // Public auth endpoints
-                .requestMatchers("/auth/register", "/auth/login").permitAll()
-            .requestMatchers("/actuator/**").permitAll()
-                // User management - ADMIN only
-                .requestMatchers(HttpMethod.GET, "/auth/users/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/auth/users/**").hasRole("ADMIN")
+                // 🟢 FIXED: Added "/api" prefix to align with Gateway and Frontend requests
+                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/actuator/**").permitAll()
+                
+                // 🟢 FIXED: Added "/api" prefix to your Admin-only data targets
+                .requestMatchers(HttpMethod.GET, "/api/auth/users/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/auth/users/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
         );
         return http.build();
