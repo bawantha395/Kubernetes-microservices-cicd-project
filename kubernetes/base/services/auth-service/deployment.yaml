@@ -26,14 +26,11 @@ spec:
               cpu: "500m"
               memory: "1Gi"  
           env:
-            # 🟢 UPGRADE: Explicitly constraints Java memory heap inside the 1Gi container barrier
             - name: JAVA_TOOL_OPTIONS
               value: "-XX:+UseSerialGC -Xss256k -Xms256m -Xmx512m"
+            # 🟢 PHYSICAL ISOLATION UPDATE: Points directly to your dedicated Auth RDS cluster hardware
             - name: SPRING_DATASOURCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: auth-service-config
-                  key: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://<YOUR_AUTH_RDS_INSTANCE_ENDPOINT>:3306/game_db"
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:

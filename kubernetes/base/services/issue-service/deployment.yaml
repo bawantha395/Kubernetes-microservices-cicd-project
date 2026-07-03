@@ -24,16 +24,13 @@ spec:
               memory: "256Mi"  
             limits:
               cpu: "500m"
-              memory: "1Gi"    # 🟢 UPGRADE: Increased to 1Gi to match auth-service safety profiles
+              memory: "1Gi"    
           env:
-            # 🟢 UPGRADE: Binds the JVM garbage collector and max heap size cleanly within container limits
             - name: JAVA_TOOL_OPTIONS
               value: "-XX:+UseSerialGC -Xss256k -Xms256m -Xmx512m"
+            # 🟢 PHYSICAL ISOLATION UPDATE: Routes directly to your dedicated Issue RDS hardware instance
             - name: SPRING_DATASOURCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: issue-service-config
-                  key: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://<YOUR_ISSUE_RDS_INSTANCE_ENDPOINT>:3306/game_db"
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -63,4 +60,4 @@ spec:
                   expirationSeconds: 86400
                   path: token
         - name: storage
-          emptyDir: {}  # 🟢 FIX: Successfully dropped the EBS volume requirement to run in node RAM
+          emptyDir: {}
