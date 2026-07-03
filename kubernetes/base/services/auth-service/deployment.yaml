@@ -30,7 +30,7 @@ spec:
               value: "-XX:+UseSerialGC -Xss256k -Xms256m -Xmx512m"
             # 🟢 PHYSICAL ISOLATION UPDATE: Points directly to your dedicated Auth RDS cluster hardware
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:mysql://<YOUR_AUTH_RDS_INSTANCE_ENDPOINT>:3306/game_db"
+              value: "jdbc:mysql://prod-issue-db.c8tsk48m85k3.us-east-1.rds.amazonaws.com:3306/auth_db"
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
