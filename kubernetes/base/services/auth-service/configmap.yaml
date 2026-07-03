@@ -1,7 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: issue-service-config
+  name: auth-service-config # 🟢 FIXED: Changed from issue-service-config
   namespace: issue-app
 data:
-  SPRING_DATASOURCE_URL: jdbc:mysql://prod-issue-db.c8tsk48m85k3.us-east-1.rds.amazonaws.com:3306/game_db
+  # 🟢 DATABASE COUPLING FIX: Directing data traffic to the isolated auth_db schema
+  SPRING_DATASOURCE_URL: jdbc:mysql://prod-issue-db.c8tsk48m85k3.us-east-1.rds.amazonaws.com:3306/auth_db
+  MAIL_ENABLED: "false" # Preserving any other configuration keys present in your file
