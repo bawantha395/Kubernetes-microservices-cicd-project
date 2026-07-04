@@ -1,4 +1,3 @@
-
 # API GATEWAY - Production (Docker) Routes
 
 spring:
@@ -6,11 +5,11 @@ spring:
     gateway:
       routes:
         - id: auth-service
-          uri: http://auth-service:8097
+          uri: http://auth-service:80        # 🟢 FIXED: Routes via K8s Service Port 80
           predicates:
-            - Path=/auth/**
+            - Path=/api/auth/** # 🟢 FIXED: Matches the React Frontend path
 
         - id: issue-service
-          uri: http://issue-service:8098
+          uri: http://issue-service:80      # 🟢 FIXED: Routes via K8s Service Port 80
           predicates:
-            - Path=/issues/**
+            - Path=/api/issues/** # 🟢 FIXED: Matches the React Frontend path
