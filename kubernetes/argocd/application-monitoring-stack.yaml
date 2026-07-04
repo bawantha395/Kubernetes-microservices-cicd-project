@@ -10,25 +10,46 @@ spec:
   source:
     repoURL: 'https://prometheus-community.github.io/helm-charts'
     chart: kube-prometheus-stack
-    targetRevision: 87.4.0  # Stable production-tested tracking version
+    targetRevision: 87.4.0  
     helm:
       values: |
         grafana:
-          adminPassword: "admin123"  # Matches Step 10 of your runbook
+          adminPassword: "admin123"  
           persistence:
-            enabled: false           # 🟢 FIXED: Set to false to bypass missing AWS EBS driver blocks
+            enabled: false           
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+        alertmanager:
+          alertmanagerSpec:
+            resources:
+              requests:
+                cpu: 30m
+                memory: 64Mi
+              limits:
+                cpu: 100m
+                memory: 128Mi
         prometheus:
           prometheusSpec:
             retention: 7d
-            # 🟢 FIXED: Completely removed the persistent volumeClaimTemplate storageSpec block 
-            # to allow Prometheus to initialize out-of-the-box using node memory resources.
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                cpu: 500m
+                memory: 1Gi
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: monitoring  # Matches Step 10 and 11 of your runbook
+    namespace: monitoring  
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true  # Automatically provisions the 'monitoring' namespace
-      - ServerSideApply=true  # Necessary for massive Prometheus CRDs
+      - CreateNamespace=true  
+      - ServerSideApply=true
