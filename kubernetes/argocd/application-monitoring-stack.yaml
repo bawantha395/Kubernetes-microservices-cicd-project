@@ -16,20 +16,12 @@ spec:
         grafana:
           adminPassword: "admin123"  # Matches Step 10 of your runbook
           persistence:
-            enabled: true
-            storageClassName: "gp2"
-            size: 10Gi
+            enabled: false           # 🟢 FIXED: Set to false to bypass missing AWS EBS driver blocks
         prometheus:
           prometheusSpec:
             retention: 7d
-            storageSpec:
-              volumeClaimTemplate:
-                spec:
-                  storageClassName: "gp2"
-                  accessModes: ["ReadWriteOnce"]
-                  resources:
-                    requests:
-                      storage: 20Gi
+            # 🟢 FIXED: Completely removed the persistent volumeClaimTemplate storageSpec block 
+            # to allow Prometheus to initialize out-of-the-box using node memory resources.
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring  # Matches Step 10 and 11 of your runbook
