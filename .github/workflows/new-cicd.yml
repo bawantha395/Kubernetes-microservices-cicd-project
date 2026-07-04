@@ -281,8 +281,6 @@
 #           echo "✅ Teardown complete. Account billing stopped for ${{ env.TARGET_ENV }}."
 
 
-
-
 name: new-cicd
 on:
   push:
@@ -320,7 +318,7 @@ jobs:
   # STAGE 1: BUILD AND TEST (Validation & Plan Generation)
   # ==========================================================================
   build-and-test:
-    name: 🧪 Build & Test
+    name:  Build & Test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event.inputs.action == 'deploy'
     steps:
@@ -371,7 +369,7 @@ jobs:
   # STAGE 2: CREATE INFRASTRUCTURE (State Synchronization)
   # ==========================================================================
   create-infrastructure:
-    name: 🏗️ Create Infrastructure
+    name:  Create Infrastructure
     runs-on: ubuntu-latest
     needs: build-and-test
     outputs:
@@ -426,7 +424,7 @@ jobs:
   # STAGE 3: BUILD AND PUSH DOCKER IMAGES (Artifact Assembly)
   # ==========================================================================
   build-and-push-docker-images:
-    name: 📦 Build & Push Docker Images
+    name:  Build & Push Docker Images
     runs-on: ubuntu-latest
     needs: create-infrastructure
     steps:
@@ -450,7 +448,6 @@ jobs:
           ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
           BASE_REGISTRY="${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com"
           
-          # Clean execution loop tracking across directories
           SERVICES=("api-gateway" "auth-service" "frontend-service" "issue-service")
           for SERVICE in "${SERVICES[@]}"; do
             echo "=== ASSEMBLING ARTIFACT: ${SERVICE} ==="
@@ -465,7 +462,7 @@ jobs:
   # STAGE 4: DEPLOY APPLICATION (GitOps Manifest Updates)
   # ==========================================================================
   deploy-application:
-    name: 🚀 Deploy Application
+    name:  Deploy Application
     runs-on: ubuntu-latest
     needs: [create-infrastructure, build-and-push-docker-images]
     permissions:
@@ -476,10 +473,17 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 2. Set Up Kustomize Controller
+      - name: 2. Configure AWS Access
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: 3. Set Up Kustomize Controller
         uses: imranismail/setup-kustomize@v2
 
-      - name: 3. Inject Live Cloud Metadata into Blueprints
+      - name: 4. Inject Live Cloud Metadata into Blueprints
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
           BASE_REGISTRY="${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com"
@@ -487,16 +491,14 @@ jobs:
           
           cd kubernetes/environments/${{ env.TARGET_ENV }}
           
-          # Inject dynamic database endpoints 
           sed -i "s|RDS_ENDPOINT_PLACEHOLDER|${{ needs.create-infrastructure.outputs.db_host }}|g" kustomization.yaml
           
-          # Bind freshly validated container tags
           kustomize edit set image api-gateway=$BASE_REGISTRY/prod-api-gateway:${IMAGE_TAG_FULL}
           kustomize edit set image auth-service=$BASE_REGISTRY/prod-auth-service:${IMAGE_TAG_FULL}
           kustomize edit set image frontend-service=$BASE_REGISTRY/prod-frontend-service:${IMAGE_TAG_FULL}
           kustomize edit set image issue-service=$BASE_REGISTRY/prod-issue-service:${IMAGE_TAG_FULL}
 
-      - name: 4. Commit and Push Manifest Changes to Git (Triggers ArgoCD)
+      - name: 5. Commit and Push Manifest Changes to Git (Triggers ArgoCD)
         run: |
           git config --global user.name "GitHub Actions Automation"
           git config --global user.email "actions@github.com"
@@ -508,7 +510,7 @@ jobs:
   # STAGE 5: DESTROY (Standalone Teardown Track)
   # ==========================================================================
   destroy:
-    name: 🗑️ Teardown Infrastructure
+    name:  Teardown Infrastructure
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
     steps:
@@ -561,10 +563,10 @@ jobs:
   # STAGE 6: NOTIFY STATUS (Ecosystem Reporting Engine)
   # ==========================================================================
   notify-status:
-    name: 📢 Notify Status
+    name:  Notify Status
     runs-on: ubuntu-latest
     needs: [build-and-test, create-infrastructure, build-and-push-docker-images, deploy-application, destroy]
-    if: always() # Guarantees execution regardless of upstream success or failure
+    if: always()
     steps:
       - name: 1. Generate Pipeline Run Summary Dashboard
         run: |
@@ -574,7 +576,6 @@ jobs:
           echo "| Operational Lifecycle Stage | Execution Status | Map Key |" >> $GITHUB_STEP_SUMMARY
           echo "| :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
           
-          # Inspect Deploy workflow branch states
           if [ "${{ env.TARGET_ACTION }}" = "deploy" ]; then
             echo "| 🧪 Schema Validation & Testing | ${{ needs.build-and-test.result == 'success' && '✅ SUCCESS' || '❌ FAILED' }} | \`stage-1\` |" >> $GITHUB_STEP_SUMMARY
             echo "| 🏗️ Cloud Infrastructure Sync | ${{ needs.create-infrastructure.result == 'success' && '✅ SUCCESS' || (needs.create-infrastructure.result == 'skipped' && '⏭️ SKIPPED' || '❌ FAILED') }} | \`stage-2\` |" >> $GITHUB_STEP_SUMMARY
@@ -582,16 +583,9 @@ jobs:
             echo "| 🚀 GitOps Application Deployment | ${{ needs.deploy-application.result == 'success' && '✅ SUCCESS' || (needs.deploy-application.result == 'skipped' && '⏭️ SKIPPED' || '❌ FAILED') }} | \`stage-4\` |" >> $GITHUB_STEP_SUMMARY
           fi
           
-          # Inspect Teardown workflow branch states
           if [ "${{ env.TARGET_ACTION }}" = "destroy" ]; then
             echo "| 🗑️ Complete Ecosystem Destruction | ${{ needs.destroy.result == 'success' && '✅ SUCCESS' || '❌ FAILED' }} | \`teardown\` |" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Triggered by actor: **@${{ github.actor }}** | Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-
-      # 🟢 CHORE: Un-comment this block if you want to push alerts to Slack webhooks later!
-      # - name: Send Slack Webhook Notification
-      #   if: failure()
-      #   run: |
-      #     curl -X POST -H 'Content-type: application/json' --data '{"text":"🚨 *Pipeline Failed!* Env: ${{ env.TARGET_ENV }} | Action: ${{ env.TARGET_ACTION }} | Actor: @${{ github.actor }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
