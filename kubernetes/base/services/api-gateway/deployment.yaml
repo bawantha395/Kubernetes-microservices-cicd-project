@@ -4,7 +4,7 @@ metadata:
   name: api-gateway
   namespace: issue-app
 spec:
-  revisionHistoryLimit: 3  # 🟢 RIGHT HERE! At the same indentation level as replicas
+  revisionHistoryLimit: 1  # 🟢 RIGHT HERE! At the same indentation level as replicas
   replicas: 1
   selector:
     matchLabels:

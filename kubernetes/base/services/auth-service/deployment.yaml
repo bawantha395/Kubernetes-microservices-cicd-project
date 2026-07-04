@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: auth-service
 spec:
-  revisionHistoryLimit: 3
+  revisionHistoryLimit: 1
   replicas: 1
   selector:
     matchLabels:
