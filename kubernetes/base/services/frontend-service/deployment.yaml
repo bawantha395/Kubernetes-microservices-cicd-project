@@ -12,6 +12,7 @@ spec:
       labels:
         app: frontend-service
     spec:
+      revisionHistoryLimit: 3
       serviceAccountName: issue-app-sa # 🟢 Preserved your custom service account mapping
       containers:
         - name: frontend-service

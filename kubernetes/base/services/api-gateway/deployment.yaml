@@ -2,7 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-gateway
+  namespace: issue-app
 spec:
+  revisionHistoryLimit: 3  # 🟢 RIGHT HERE! At the same indentation level as replicas
   replicas: 1
   selector:
     matchLabels:
@@ -20,11 +22,11 @@ spec:
             - containerPort: 8096
           resources:
             requests:
-              cpu: "50m"       # Down from 250m
-              memory: "128Mi"  # Down from 512Mi
+              cpu: "50m"       
+              memory: "128Mi"  
             limits:
               cpu: "200m"
-              memory: "256Mi"  # Down from 1Gi
+              memory: "256Mi"  
           env:
             - name: JWT_SECRET
               valueFrom:
@@ -32,4 +34,4 @@ spec:
                   name: api-gateway-secrets
                   key: JWT_SECRET
             - name: CORS_ALLOWED_ORIGIN
-              value: "https://tcmslk.me"
+              value: "https://lb.tcmslk.me" # 🟢 Don't forget to update this to match your LB URL!
