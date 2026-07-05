@@ -1,38 +1,24 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-namespace: issue-app
-
 resources:
-  # ==========================================
-  # 1. CORE INFRASTRUCTURE LAYER
-  # ==========================================
   - infrastructure/namespace.yaml
+  - infrastructure/serviceaccount.yaml
   - infrastructure/secret-store.yaml
   - infrastructure/ingress.yaml
-  - infrastructure/serviceaccount.yaml # <-- Ensure this has the folder prefix!
-
-  # ==========================================
-  # 2. MICROSERVICES LAYER
-  # ==========================================
-  # API Gateway
+  # Services
   - services/api-gateway/deployment.yaml
   - services/api-gateway/service.yaml
   - services/api-gateway/external-secret.yaml
-
-  # Auth Service
+  - services/api-gateway/hpa.yaml       # 🟢 Added
   - services/auth-service/deployment.yaml
   - services/auth-service/service.yaml
   - services/auth-service/external-secret.yaml
   - services/auth-service/configmap.yaml
-
-  # Issue Service
+  - services/auth-service/hpa.yaml       # 🟢 Added
+  - services/frontend-service/deployment.yaml
+  - services/frontend-service/service.yaml
+  - services/frontend-service/hpa.yaml  # 🟢 Added
   - services/issue-service/deployment.yaml
   - services/issue-service/service.yaml
   - services/issue-service/external-secret.yaml
   - services/issue-service/configmap.yaml
   - services/issue-service/pvc.yaml
-
-  # Frontend Service
-  - services/frontend-service/deployment.yaml
-  - services/frontend-service/service.yaml
+  - services/issue-service/hpa.yaml      # 🟢 Added
